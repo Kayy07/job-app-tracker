@@ -8,6 +8,15 @@ includes the job-listing scraper that produces records in this shared shape:
   "companyName": "Example Company",
   "positionTitle": "Software Engineer",
   "jobDescription": "Full description text",
+  "parsedDescription": {
+    "summary": "A concise introductory paragraph...",
+    "responsibilities": ["Build and ship product features"],
+    "requiredQualifications": ["Experience with JavaScript"],
+    "preferredQualifications": ["Experience with React"],
+    "skills": ["JavaScript", "React"],
+    "benefits": ["Flexible working hours"],
+    "applicationInstructions": ["Submit a resume and portfolio"]
+  },
   "currentStatus": "Applied",
   "link": "https://...",
   "deadline": null,
@@ -58,13 +67,16 @@ query parameters:
 node example.js https://app.joinhandshake.com/job-search/11201873
 ```
 
-The command prints one JSON record to standard output. `currentStatus` is
-currently initialized to `Applied`; it does not inspect application history.
+The command prints one JSON record to standard output. It preserves the full
+raw `jobDescription` and adds a compact `parsedDescription` for application UI,
+filtering, and search. Empty or unrecognized sections are returned as empty
+arrays instead of guessed content. `currentStatus` is currently initialized to
+`Applied`; it does not inspect application history.
 
 ## Current limitations
 
 - Handshake sessions expire and occasionally require logging in again.
 - Handshake must open a visible browser during a scrape.
 - LinkedIn and Indeed can block automated browsing or change their markup.
-- Long job descriptions are currently returned as raw text; structured parsing
-  and summarization are planned as the next layer of the tracker.
+- Description parsing is rule-based, so unusual headings may remain only in the
+  preserved raw description.

@@ -5,7 +5,8 @@
   "main": "jobScraper.js",
   "scripts": {
     "example": "node example.js",
-    "handshake:login": "node handshakeLogin.js"
+    "handshake:login": "node handshakeLogin.js",
+    "test": "node --test"
   },
   "dependencies": {
     "puppeteer": "^22.0.0"

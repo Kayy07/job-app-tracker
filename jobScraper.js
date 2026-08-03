@@ -22,6 +22,7 @@
 
 const puppeteer = require('puppeteer');
 const path = require('path');
+const { parseJobDescription } = require('./jobParser');
 
 // A dedicated browser profile preserves the Handshake login between runs.
 // It is intentionally separate from the user's normal Chrome profile.
@@ -93,6 +94,7 @@ async function scrapeLinkedIn(browser, url) {
     companyName: data.companyName,
     positionTitle: data.positionTitle,
     jobDescription: descText,
+    parsedDescription: parseJobDescription(descText),
     currentStatus: 'Applied',
     link: url,
     deadline: null,
@@ -126,6 +128,7 @@ async function scrapeIndeed(browser, url) {
     companyName: data.companyName,
     positionTitle: data.positionTitle,
     jobDescription: descText,
+    parsedDescription: parseJobDescription(descText),
     currentStatus: 'Applied',
     link: url,
     deadline: null,
@@ -222,6 +225,7 @@ async function scrapeHandshake(browser, url) {
     companyName: data.companyName,
     positionTitle: data.positionTitle,
     jobDescription: descText,
+    parsedDescription: parseJobDescription(descText),
     currentStatus: 'Applied',
     link: url,
     deadline: data.deadline,
@@ -242,6 +246,7 @@ function parsePastedText(rawText, url) {
     companyName: null, // ask user to confirm/fill manually
     positionTitle: null,
     jobDescription: rawText.trim(),
+    parsedDescription: parseJobDescription(rawText),
     currentStatus: 'Applied',
     link: url || null,
     deadline: null,
