@@ -54,6 +54,10 @@ not be shared.
 Handshake scraping opens a visible Chromium window because its current
 Cloudflare verification blocks headless Chromium.
 
+During a scrape, leave the Chromium window open. The scraper waits for the
+actual job panel (up to two minutes), then closes the browser automatically.
+If a security check appears, complete it in that window and continue waiting.
+
 ## Run the tracker app
 
 ```bash
