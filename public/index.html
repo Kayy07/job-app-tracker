@@ -1,87 +1,121 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Job Application Tracker</title>
-  <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-  <header>
-    <p class="eyebrow">Your job search, organized</p>
-    <h1>Application tracker</h1>
-    <p>Import a listing, check the extracted details, and save it to your pipeline.</p>
-  </header>
 
-  <main>
-    <section class="import-panel" aria-labelledby="import-heading">
-      <div>
-        <h2 id="import-heading">Import a job</h2>
-        <p>Handshake is fully supported. LinkedIn and Indeed public pages are experimental.</p>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Job Application Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+
+  <body>
+    <header>
+      <div class="header-content">
+        <p class="eyebrow">Your job search, organized</p>
+        <h1>Application Tracker</h1>
+        <p>Import a listing, check the extracted details, and save it to your pipeline.</p>
       </div>
-      <form id="scrape-form">
-        <label for="job-url">Job listing URL</label>
-        <div class="url-row">
-          <input id="job-url" name="url" type="url" required placeholder="https://app.joinhandshake.com/job-search/...">
-          <button type="submit">Import listing</button>
+    </header>
+    <main>
+      <section class="import-panel" aria-labelledby="import-heading">
+        <div class="panel-header">
+          <h2 id="import-heading">Import a Job</h2>
+          <p>Handshake is fully supported. LinkedIn and Indeed public pages are experimental.</p>
         </div>
-        <p id="scrape-message" class="message" role="status"></p>
-      </form>
-    </section>
-
-    <section id="review-panel" class="review-panel hidden" aria-labelledby="review-heading">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Review before saving</p>
-          <h2 id="review-heading">Imported details</h2>
+        <form id="scrape-form">
+          <label for="job-url">Job listing URL</label>
+          <div class="url-row">
+            <input id="job-url" name="url" type="url" required placeholder="https://app.joinhandshake.com/job-search/...">
+            <button type="submit">Import Listing</button>
+          </div>
+          <p id="scrape-message" class="message" role="status"></p>
+        </form>
+      </section>
+      <section id="review-panel" class="review-panel hidden" aria-labelledby="review-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Review before saving</p>
+            <h2 id="review-heading">Imported Details</h2>
+          </div>
+          <button id="cancel-review" class="secondary" type="button">Cancel</button>
         </div>
-        <button id="cancel-review" class="secondary" type="button">Cancel</button>
-      </div>
-      <form id="review-form">
-        <div class="form-grid">
-          <label>Company<input name="companyName"></label>
-          <label>Position<input name="positionTitle"></label>
-          <label>Status<select name="currentStatus"></select></label>
-          <label>Work mode<select name="onsiteRemote"><option>Unknown</option><option>Remote</option><option>Hybrid</option><option>Onsite</option></select></label>
-          <label>Location<input name="location"></label>
-          <label>Pay<input name="payRate"></label>
-          <label>Deadline<input name="deadline"></label>
-          <label>Link<input name="link" type="url"></label>
+        <form id="review-form">
+          <div class="form-grid">
+            <label>Company<input name="companyName"></label>
+            <label>Position<input name="positionTitle"></label>
+            <label>Status<select name="currentStatus"></select></label>
+            <label>Work Mode
+              <select name="onsiteRemote">
+                <option>Unknown</option>
+                <option>Remote</option>
+                <option>Hybrid</option>
+                <option>Onsite</option>
+              </select>
+            </label>
+            <label>Location<input name="location"></label>
+            <label>Pay<input name="payRate"></label>
+            <label>Deadline<input name="deadline"></label>
+            <label>Link<input name="link" type="url"></label>
+          </div>
+          <label class="description-label">Full Description<textarea name="jobDescription" rows="12"></textarea></label>
+          <div id="parsed-preview" class="parsed-preview"></div>
+          <div class="form-actions">
+            <p id="save-message" class="message" role="status"></p>
+            <button type="submit">Save to Tracker</button>
+          </div>
+        </form>
+      </section>
+      <section class="dashboard" aria-labelledby="dashboard-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Pipeline</p>
+            <h2 id="dashboard-heading">Saved Applications</h2>
+          </div>
+          <label class="search-label">
+            <span class="sr-only">Search</span>
+            <input id="search" type="search" placeholder="Search company, title, skill...">
+          </label>
         </div>
-        <label class="description-label">Full description<textarea name="jobDescription" rows="12"></textarea></label>
-        <div id="parsed-preview" class="parsed-preview"></div>
-        <p id="save-message" class="message" role="status"></p>
-        <button type="submit">Save to tracker</button>
-      </form>
-    </section>
 
-    <section class="dashboard" aria-labelledby="dashboard-heading">
-      <div class="section-heading">
-        <div>
-          <p class="eyebrow">Pipeline</p>
-          <h2 id="dashboard-heading">Saved applications</h2>
+        <div id="stats" class="stats"></div>
+
+        <div class="table-container">
+          <div class="table-header">
+            <div class="th">Company</div>
+            <div class="th">Position Title</div>
+            <div class="th">Job Description</div>
+            <div class="th">Current Status</div>
+            <div class="th">Details (Loc/Pay)</div>
+            <div class="th">Link</div>
+          </div>
+          <div id="jobs" class="jobs"></div>
         </div>
-        <label class="search-label">Search<input id="search" type="search" placeholder="Company, title, skill..."></label>
-      </div>
-      <div id="stats" class="stats"></div>
-      <div id="jobs" class="jobs"></div>
-      <p id="empty-state" class="empty-state">No jobs saved yet. Import your first listing above.</p>
-    </section>
-  </main>
 
-  <template id="job-template">
-    <article class="job-card">
-      <div class="job-card-heading">
-        <div><p class="company"></p><h3 class="title"></h3></div>
-        <select class="status" aria-label="Application status"></select>
-      </div>
-      <div class="metadata"></div>
-      <div class="skills"></div>
-      <p class="summary"></p>
-      <a class="listing-link" target="_blank" rel="noreferrer">View original listing</a>
-    </article>
-  </template>
+        <p id="empty-state" class="empty-state">No jobs saved yet. Import your first listing above.</p>
+      </section>
+    </main>
 
-  <script src="/app.js" defer></script>
-</body>
+    <template id="job-template">
+      <article class="job-card">
+        <div class="cell">
+          <p class="company"></p>
+        </div>
+        <div class="cell">
+          <h3 class="title"></h3>
+        </div>
+        <div class="cell desc-cell">
+          <p class="summary"></p>
+          <div class="skills"></div>
+        </div>
+        <div class="cell"><select class="status" aria-label="Application status"></select></div>
+        <div class="cell">
+          <div class="metadata"></div>
+        </div>
+        <div class="cell">
+          <a class="listing-link" target="_blank" rel="noreferrer">View &rarr;</a>
+        </div>
+      </article>
+    </template>
+  </body>
+
 </html>
