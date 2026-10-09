@@ -4,6 +4,7 @@
   "description": "Scrapes LinkedIn/Indeed job postings into the shared Job schema",
   "main": "jobScraper.js",
   "scripts": {
+    "start": "node server.js",
     "example": "node example.js",
     "handshake:login": "node handshakeLogin.js",
     "test": "node --test"

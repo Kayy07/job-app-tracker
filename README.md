@@ -54,6 +54,27 @@ not be shared.
 Handshake scraping opens a visible Chromium window because its current
 Cloudflare verification blocks headless Chromium.
 
+During a scrape, leave the Chromium window open. The scraper waits for the
+actual job panel (up to two minutes), then closes the browser automatically.
+If a security check appears, complete it in that window and continue waiting.
+
+## Run the tracker app
+
+```bash
+npm start
+```
+
+Open <http://localhost:3000>. From the dashboard you can:
+
+- Paste a Handshake, LinkedIn, or Indeed listing URL.
+- Review and edit extracted fields before saving.
+- See structured description sections and detected skills.
+- Track Saved, Applied, Interviewing, Rejected, and Offer statuses.
+- Search saved jobs by company, position, location, or skill.
+
+Saved jobs are written locally to `data/jobs.json`. That directory is ignored
+by Git so personal application data is not committed.
+
 ## Scrape a listing
 
 ```bash

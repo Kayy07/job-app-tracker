@@ -140,43 +140,43 @@ async function scrapeIndeed(browser, url) {
 
 async function scrapeHandshake(browser, url) {
   const page = await newPage(browser);
-  await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+  // Handshake keeps analytics and application requests active, so waiting for
+  // network silence can time out even after the job is visibly ready.
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 });
 
   // Handshake currently places Cloudflare verification in front of its app.
-  // A visible browser with the saved profile can pass it, but the app may need
-  // several seconds after navigation before the job detail is rendered.
-  await page.waitForFunction(
-    () => document.title !== 'Just a moment...' &&
-      !document.body?.innerText?.includes('Performing security verification'),
-    { timeout: 30000 }
-  ).catch(() => {});
-  await new Promise(resolve => setTimeout(resolve, 5000));
-
-  const blockedByCloudflare = await page.evaluate(() =>
-    document.title === 'Just a moment...' ||
-    document.body?.innerText?.includes('Performing security verification')
-  );
-  if (blockedByCloudflare) {
-    await page.close();
-    throw new Error(
-      'Handshake security verification did not finish. Complete it in the visible browser and retry.'
-    );
+  // Give the user up to two minutes to complete a challenge if one appears.
+  try {
+    await page.waitForFunction(() => {
+      const body = document.body?.innerText || '';
+      const jobReady = Boolean(document.querySelector('[data-hook="right-content"]'));
+      const loginRequired = /log in or sign up|sign in to handshake|continue with sso/i.test(body) ||
+        Boolean(document.querySelector('input[type="password"], form[action*="login"]'));
+      return jobReady || loginRequired;
+    }, { timeout: 120000, polling: 500 });
+  } catch (error) {
+    if (error.name === 'TimeoutError') {
+      throw new Error(
+        'Handshake did not load the job within 2 minutes. Leave Chromium open, complete any security check, and retry.'
+      );
+    }
+    throw error;
   }
 
-  const loginRequired = await page.evaluate(() => {
+  const pageState = await page.evaluate(() => {
     const body = document.body?.innerText || '';
-    return /log in or sign up|sign in to handshake|continue with sso/i.test(body) ||
-      Boolean(document.querySelector('input[type="password"], form[action*="login"]'));
+    return {
+      jobReady: Boolean(document.querySelector('[data-hook="right-content"]')),
+      loginRequired: /log in or sign up|sign in to handshake|continue with sso/i.test(body) ||
+        Boolean(document.querySelector('input[type="password"], form[action*="login"]')),
+    };
   });
 
-  if (loginRequired) {
-    await page.close();
+  if (!pageState.jobReady && pageState.loginRequired) {
     throw new Error(
-      'Handshake login required. Run `npm run handshake:login`, sign in, then retry this URL.'
+      'Handshake login required. Run `npm run handshake:login`, sign in, close that browser, then retry.'
     );
   }
-
-  await page.waitForSelector('[data-hook="right-content"]', { timeout: 30000 });
 
   // Handshake truncates long descriptions behind a More button.
   await page.evaluate(() => {
@@ -286,7 +286,7 @@ async function scrapeJob(url) {
     else result = await scrapeHandshake(browser, url);
     return result;
   } finally {
-    await browser.close();
+    await browser.close().catch(() => {});
   }
 }
 
